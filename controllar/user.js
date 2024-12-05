@@ -1,7 +1,14 @@
 const model = require('../model/user')
+const bcrypt= require('bcrypt')
+const jwt = require('jsonwebtoken')
+
 exports.Signup = async (req, res) => {
+    const Data= req.body;
     try {
-        const create = await model.create(req.body)
+        
+        Data.password = await bcrypt.hash (req.body.password,10)
+        const create = await model.create(Data)
+        Data.profileImage = req.file.filename;
         res.status(200).json({
             status: 'Success',
             Message: 'Data enter success',
@@ -15,19 +22,45 @@ exports.Signup = async (req, res) => {
     }
 }
 
-exports.showdata = async (req, res) => {
+// exports.Signup = async (req, res) => {
+//     const Data = req.body;
+
+//     try {
+//         Data.password = await bcrypt.hash(req.body.password, 10);
+//         Data.profileImage = req.file.filename;
+//         const create = await model.create(Data);
+
+//         res.status(200).json({
+//             status: 'Success',
+//             Message: 'Data entry successful',
+//             Data: create
+//         });
+//     } catch (error) {
+//         res.status(404).json({
+//             status: 'Fail',
+//             Message: error.message
+//         });
+//     }
+// };
+
+exports.Login = async (req, res) => {
     try {
-        const show = await model.find(req.body)
+        const logindata = await model.findOne({ email: req.body.email });
+        if (!logindata) throw new Error("Email not found");
+        const checkpassword = await bcrypt.compare(req.body.password, logindata.password);
+        if (!checkpassword) throw new Error("Invalid password");
+        const token = jwt.sign({ id: logindata._id }, 'surat', { expiresIn: '1h' });
         res.status(200).json({
             status: 'Success',
-            Message: 'Data enter success',
-            Data: show
-        })
+            Message: 'Login successful',
+            Data: logindata,
+            token
+        });
     } catch (error) {
-        res.status(404).json({
+        res.status(401).json({
             status: 'Fail',
             Message: error.message
-        })
+        });
     }
 }
 exports.deletedata = async (req, res) => {

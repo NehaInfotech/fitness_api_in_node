@@ -31,3 +31,19 @@ exports.showdata1 = async (req, res) => {
     }
 }
 
+exports.deletedata1 = async (req, res) => {
+    const id=req.params.id;
+    try {
+        const show = await model1.findByIdAndDelete(id)
+        res.status(200).json({
+            status: 'Success',
+            Message: 'Data delete success',
+            Data: show
+        })
+    } catch (error) {
+        res.status(404).json({
+            status: 'Fail',
+            Message: error.message
+        })
+    }
+}

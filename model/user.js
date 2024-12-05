@@ -11,10 +11,10 @@ const  user = new  mongoose.Schema({
     password:{
         type: String,
         required: true
-    },
-    number:{
-        type: Number,
-        required: true
-    },
+    }, 
+    profileImage: {
+        type: String,
+        required: true // Ensures the field is mandatory
+    }
 })
 module.exports = mongoose.model('user',user)
